@@ -42,6 +42,37 @@ app.post('/adduser', (request, response, next) => {
         });
     }
 });
+app.get('/getusers', (req, res, next) => {
+    let dao = new adapter(dbSource);
+    dao.getUsers()
+    .then((r) => {
+        if(r){
+            res.send(r);
+        }else{
+            res.send('No data');
+        }
+    }).catch((e) => {
+        next(e);
+    }); 
+    
+});
+app.post('/getuserbyid', (req, res, next) => {
+    let id = req.body.id || null;
+    if(!id){
+        res.status(400).send('No user id requested');
+    }
+    let dao =new adapter(dbSource);
+    dao.getUserById(id).then(r => {
+        if(r){
+            res.send(r);
+        }else{
+            res.send(null);
+        }
+    })
+    .catch((e) => {
+        next(e);
+    });
+});
 
 app.listen(port, () => {
     let dao = new adapter(dbSource);

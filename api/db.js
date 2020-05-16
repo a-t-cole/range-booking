@@ -67,20 +67,61 @@ class dbAdapter{
     addUser(name){
         return new Promise((resolve, reject) => {
             if(name){
-                let sql = `INSERT INTO users(Name) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM users WHERE name = ?)`
-                this.db.run(sql, [name], function(err){
+
+                let sql = `INSERT INTO users(Name) SELECT ? WHERE NOT EXISTS (SELECT * FROM users WHERE name = ?)`
+                this.db.run(sql, [name], function(r, err){
                     if(err){
+                        console.log(err);
                         reject('Could not insert name into database');
                     }
                     else{
-                        resolve(); 
+                        resolve(r); 
                     }
                 }); 
+                this.db.close(); 
             }else{
                 reject('No name supplied to add to DB')
             }   
         });
         
+    }
+    getUsers(){
+        return new Promise((resolve, reject) => {
+            this.db.serialize(() => {
+                let sql = `SELECT UserId as id,
+                                 Name as name
+                          FROM users`;
+                this.db.all(sql,[],  (err, rows) => {
+                    if(err){
+                        reject(err); 
+                    }
+                    if(rows){
+                        resolve(rows); 
+                    }
+                });
+              });
+              
+              this.db.close((err) => {
+                if (err) {
+                  console.error(err.message);
+                }
+              });
+        });
+    }
+    getUserById(id){
+        return new Promise((resolve, reject) => {
+            if(!id){
+                reject('No user id requested');
+            }
+            this.db.get(`SELECT UserId as id, Name as name FROM users WHERE UserId = ?`, [id], function(err, row){
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(row);
+                }
+
+            })
+        });
     }
 }
 
