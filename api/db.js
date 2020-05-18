@@ -2,11 +2,11 @@ const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const user_create = `CREATE TABLE IF NOT EXISTS [users](
     UserId INTEGER PRIMARY KEY AUTOINCREMENT, 
-    Name TEXT NOT NULL 
+    Name TEXT NOT NULL ON CONFLICT IGNORE
 )`;
 const targets_create = `CREATE TABLE IF NOT EXISTS [targets](
   TargetId INTEGER PRIMARY KEY AUTOINCREMENT, 
-  Name TEXT NOT NULL 
+  Name TEXT NOT NULL ON CONFLICT IGNORE
 )`;
 
 const reservation_create = `CREATE TABLE IF NOT EXISTS [reservations](
@@ -67,12 +67,33 @@ class dbAdapter{
     addUser(name){
         return new Promise((resolve, reject) => {
             if(name){
-
-                let sql = `INSERT INTO users(Name) SELECT ? WHERE NOT EXISTS (SELECT * FROM users WHERE name = ?)`
+                let sql = `INSERT OR IGNORE INTO users(Name) 
+                VALUES(?)`
                 this.db.run(sql, [name], function(r, err){
                     if(err){
                         console.log(err);
                         reject('Could not insert name into database');
+                    }
+                    else{
+                        resolve(r); 
+                    }
+                }); 
+                this.db.close(); 
+            }else{
+                reject('No name supplied to add to DB')
+            }   
+        });
+        
+    }
+    addTarget(name){
+        return new Promise((resolve, reject) => {
+            if(name){
+                let sql = `INSERT OR IGNORE INTO targets(Name) 
+                VALUES(?)`
+                this.db.run(sql, [name], function(r, err){
+                    if(err){
+                        console.log(err);
+                        reject('Could not insert target into database');
                     }
                     else{
                         resolve(r); 
@@ -122,6 +143,30 @@ class dbAdapter{
 
             })
         });
+    }
+    getTargets(){
+        return new Promise((resolve, reject) => {
+            this.db.serialize(() => {
+                let sql = `SELECT TargetId as id,
+                                    Name as name
+                            FROM targets`;
+                this.db.all(sql,[],  (err, rows) => {
+                    if(err){
+                        reject(err); 
+                    }
+                    if(rows){
+                        resolve(rows); 
+                    }
+                });
+                });
+                
+                this.db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                });
+        });
+    
     }
 }
 
