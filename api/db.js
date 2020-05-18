@@ -29,30 +29,6 @@ class dbAdapter{
             }
         });
     }
-    dump(){
-        return new Promise((resolve, reject) => {
-            this.db.serialize(() => {
-                let sql = `SELECT PlaylistId as id,
-                                 Name as name
-                          FROM playlists`;
-                this.db.all(sql,[],  (err, rows) => {
-                    if(err){
-                        reject(err); 
-                    }
-                    if(rows){
-                        resolve(rows); 
-                    }
-                });
-              });
-              
-              this.db.close((err) => {
-                if (err) {
-                  console.error(err.message);
-                }
-                console.log('Close the database connection.');
-              });
-        });
-    }
     init(){
         this.db.exec(user_create, (err) => {if(err){
             throw 'Could not create user table';
@@ -167,6 +143,22 @@ class dbAdapter{
                 });
         });
     
+    }
+    getreservations(startDate){
+        return new Promise((resolve, reject) => {
+            let sql = `SELECT reservations.ResId, users.Name, targets.Name, reservations.StartTime, reservations.EndTime FROM reservations INNER JOIN users ON users.UserId = reservations.fkUserId INNER JOIN targets ON targets.TargetId = reservations.fkTargetId WHERE (julianday(StartTime) > julianday(?) AND julianday(EndTime) > julianday(?)) OR (julianday(StartTime) < julianday(?) AND julianday(EndTime) > julianday(?))`;
+            this.db.serialize(() => {
+                this.db.all(sql,[startDate, startDate, startDate, startDate],  (err, rows) => {
+                    if(err){
+                        reject(err); 
+                    }
+                    if(rows){
+                        resolve(rows); 
+                    }
+                });
+            });    
+            this.db.close();         
+        });
     }
 }
 
