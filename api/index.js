@@ -126,7 +126,7 @@ app.post('/addreservation', (req, res, next)=>{
         res.status(400).send('Could not parse start date');
     }
     else{
-        startDate = new moment(endDate).format(dateFormatString);
+        endDate = new moment(endDate).format(dateFormatString);
     }
     if(!userId){
         res.status(400).send('Could not parse user id');
