@@ -21,15 +21,18 @@ const reservation_create = `CREATE TABLE IF NOT EXISTS [reservations](
        REFERENCES targets (TargetId)	    
 )`;
 class dbAdapter{
-    
+    _source = "";
     constructor(source){
-        this.db = new sqlite3.Database(source, (e) => {
+        this._source = source; 
+        this.db = new sqlite3.Database(source, function(e){
             if(e){
-                console.log('Error connecting to db: '+e)    
+                console.log('Error connecting to db: '+e)
+                //throw e;     
             }
         });
     }
     init(){
+        
         this.db.exec(user_create, (err) => {if(err){
             throw 'Could not create user table';
         }});
@@ -158,6 +161,33 @@ class dbAdapter{
                 });
             });    
             this.db.close();         
+        });
+    }
+    addreservation(userId, targetId, startDate, endDate){
+        return new Promise((resolve, reject) => {
+            let rejectMessage = "";
+            if(!userId){
+                rejectMessage = "UserId";
+            }else if(!targetId){
+                rejectMessage = "TargetId";
+            }else if(!startDate){
+                rejectMessage ="Start Date";
+            }else if(!endDate){
+                rejectMessage = "End Date";
+            }
+            if(rejectMessage){
+                reject(`No ${rejectMessage} specified`);
+            }
+            let sql = `INSERT INTO reservations(fkUserId, fkTargetId, StartTime, EndTime)
+            VALUES(?,?,?,?)`
+            this.db.run(sql, [userId, targetId, startDate, endDate], (err)=> {
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(this.lastID);
+                }
+            });
+            this.db.close(); 
         });
     }
 }

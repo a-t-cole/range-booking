@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const moment = require('moment');
 const app = express(); 
 const port = 3000; 
-const dbSource = "data/bookings.db";
-const logFile = "data/log.txt";
+const dbSource = "api/data/bookings.db";
+const logFile = "api/data/log.txt";
 const fs = require('fs');
 const adapter= require('./db');
 const dateFormatString = 'YYYY-MM-DD HH:mm:ss'
@@ -99,14 +99,6 @@ app.post('/getreservations', (req, res, next) => {
     else{
         startDate = new moment(startDate).format(dateFormatString);
     }
-    // if(!endDate){
-    //     res.status(400).send('End date not defined');
-    // }else if(!Date.parse(endDate)){
-    //     res.status(400).send('Could not parse end date');
-        
-    // }else{
-    //     endDate = new moment(endDate).format(dateFormatString);
-    // }
     let dao = new adapter(dbSource);
     dao.getreservations(startDate).then((r) =>{
         res.send(r);
@@ -115,11 +107,48 @@ app.post('/getreservations', (req, res, next) => {
     });
     
 });
+app.post('/addreservation', (req, res, next)=>{
+    let startDate = req.body.startDate || '';
+    let endDate = req.body.endDate ||'';
+    let userId = req.body.userId || '';
+    let targetId = req.body.targetId || '';
+    if(!startDate){
+        res.status(400).send('Start date not defined');
+    }else if(!Date.parse(startDate)){
+        res.status(400).send('Could not parse start date');
+    }
+    else{
+        startDate = new moment(startDate).format(dateFormatString);
+    }
+    if(!endDate){
+        res.status(400).send('Start date not defined');
+    }else if(!Date.parse(endDate)){
+        res.status(400).send('Could not parse start date');
+    }
+    else{
+        startDate = new moment(endDate).format(dateFormatString);
+    }
+    if(!userId){
+        res.status(400).send('Could not parse user id');
+    }
+    if(!targetId){
+        res.status(400).send('Could not parse target id');
+    }
+
+    let dao = new adapter(dbSource);
+    dao.addreservation(userId, targetId, startDate, endDate)
+    .then((r) =>{
+        res.send();
+    }).catch((e) => {
+        next(e);
+    });
+});
 app.get('/getdb', (req, res, next) =>{
     res.download('data/bookings.db', 'bookings.db');
 });
 app.listen(port, () => {
-    let dao = new adapter(dbSource);
+    let filePath = fs.existsSync(dbSource) ? dbSource : 'api/'+dbSource;
+    let dao = new adapter(filePath);
     dao.init(); 
     console.log(`Example app listening at http://localhost:${port}`);
 });
