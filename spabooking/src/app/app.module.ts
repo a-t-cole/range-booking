@@ -10,6 +10,7 @@ import * as moment from 'moment';
 export function momentAdapterFactory() {
   return adapterFactory(moment);
 };
+
 @NgModule({
   declarations: [
     AppComponent
@@ -18,7 +19,6 @@ export function momentAdapterFactory() {
     BrowserModule,
     AppRoutingModule,
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: momentAdapterFactory })
-
   ],
   providers: [],
   bootstrap: [AppComponent]

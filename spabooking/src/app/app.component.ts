@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'spabooking';
+  public viewDate: Date = new Date(); 
+  public events: any[] = []; 
 }
