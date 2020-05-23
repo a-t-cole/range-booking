@@ -7,7 +7,7 @@ import { CalendarView } from 'angular-calendar';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-
+  //https://angular-calendar.com/#/async-events <--event loading
 
   ngOnInit(): void {
     document.body.classList.add('dark-theme');
