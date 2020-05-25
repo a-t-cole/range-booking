@@ -2,6 +2,7 @@
   <h2 class="title center">Range Booking</h2>
 </div>
 <div>
+  <ngx-spinner [name]="'Main'">Loading data</ngx-spinner>
   <app-calendar-header [(view)]="view" [(viewDate)]="viewDate">
 
   </app-calendar-header>
@@ -9,8 +10,12 @@
   [viewDate]="viewDate"
   [events]="events"
   [dayStartHour]="7"
-  [dayEndHour]="20">
+  [dayEndHour]="20"
+  (hourSegmentClicked)="onAddBooking($event)" >
   
 </mwl-calendar-week-view>
 <router-outlet></router-outlet>
+<div class="btn btn-primary button button-fixed button-circle" (click)="onAddBooking()">
+  <i aria-hidden="true" class="fas fa-plus fa-2x"></i>
+</div>
 </div>

@@ -8,6 +8,13 @@ const logFile = "api/data/log.txt";
 const fs = require('fs');
 const adapter= require('./db');
 const dateFormatString = 'YYYY-MM-DD HH:mm:ss'
+const production = false; 
+const cors = require('cors')
+
+var corsOptions = {
+  origin: 'http://localhost:4200',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+}
 function errorHandler(err, req, res, next){
     //If an exception is thrown parsing the request body the scope of the error is the folder above
     let filePath = fs.existsSync(logFile) ? logFile : 'api/'+logFile; 
@@ -24,6 +31,9 @@ function errorHandler(err, req, res, next){
     
     stream.end(); 
     res.status(500).send({error: 'Could not complete request'});
+}
+if(!production){
+    app.use(cors(corsOptions));
 }
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

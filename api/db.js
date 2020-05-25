@@ -149,7 +149,7 @@ class dbAdapter{
     }
     getreservations(startDate){
         return new Promise((resolve, reject) => {
-            let sql = `SELECT reservations.ResId, users.Name, targets.Name, reservations.StartTime, reservations.EndTime FROM reservations INNER JOIN users ON users.UserId = reservations.fkUserId INNER JOIN targets ON targets.TargetId = reservations.fkTargetId WHERE (julianday(StartTime) > julianday(?) AND julianday(EndTime) > julianday(?)) OR (julianday(StartTime) < julianday(?) AND julianday(EndTime) > julianday(?))`;
+            let sql = `SELECT reservations.ResId, users.Name as User, targets.Name as Target, reservations.StartTime, reservations.EndTime FROM reservations INNER JOIN users ON users.UserId = reservations.fkUserId INNER JOIN targets ON targets.TargetId = reservations.fkTargetId WHERE (julianday(StartTime) > julianday(?) AND julianday(EndTime) > julianday(?)) OR (julianday(StartTime) < julianday(?) AND julianday(EndTime) > julianday(?))`;
             this.db.serialize(() => {
                 this.db.all(sql,[startDate, startDate, startDate, startDate],  (err, rows) => {
                     if(err){

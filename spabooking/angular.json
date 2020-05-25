@@ -30,7 +30,8 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/angular-calendar/css/angular-calendar.css",
-              "src/styles/main.scss"
+              "src/styles/main.scss",
+              "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": []
           },
