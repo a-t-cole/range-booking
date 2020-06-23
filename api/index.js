@@ -2,14 +2,19 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const moment = require('moment');
 const app = express(); 
-const port = 3000; 
+const port = process.env.PORT || 3000; 
 const dbSource = "api/data/bookings.db";
 const logFile = "api/data/log.txt";
+const appFolder = 'api/www';
 const fs = require('fs');
 const adapter= require('./db');
 const dateFormatString = 'YYYY-MM-DD HH:mm:ss'
 const production = false; 
-const cors = require('cors')
+const cors = require('cors');
+const { pathToFileURL } = require('url');
+const path = require('path');
+
+
 
 var corsOptions = {
   origin: 'http://localhost:4200',
@@ -38,7 +43,14 @@ if(!production){
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(errorHandler)
-app.get('/', (req, res) => { res.send('Hello world!')});
+app.use(express.static(path.join(__dirname, 'www')));
+app.get('/', (req, res) => { 
+    var options = {
+        root: path.join(__dirname, 'www')
+    };
+    res.sendFile('index.html', options)
+
+});
 app.post('/adduser', (request, response, next) => {
     let name = request.body.username || ''; 
     if(name){
