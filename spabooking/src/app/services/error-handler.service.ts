@@ -18,6 +18,18 @@ export class ErrorHandlerService {
     this.toastrSvc.error(message, "", {
       timeOut: duration,
       positionClass: 'toast-top-center'
+    });
+  }
+  success(message: string, duration?: number){
+    if(!message){
+      return; 
+    }
+    if(!duration){
+      duration  = 5000; 
+    }
+    this.toastrSvc.success(message, "", {
+      timeOut: duration,
+      positionClass: 'toast-top-center'
     })
   }
 }

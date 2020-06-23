@@ -15,6 +15,7 @@ import { DataService } from './services/data.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AddBookingComponent } from './components/add-booking/add-booking.component';
 import {MatDialogModule} from '@angular/material/dialog'; 
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 export function momentAdapterFactory() {
   return adapterFactory(moment);
 };
@@ -30,7 +31,11 @@ export function momentAdapterFactory() {
     BrowserAnimationsModule, 
     BrowserModule,
     AppRoutingModule,
+    FormsModule, 
     MatDialogModule, 
+    BrowserModule, 
+    ReactiveFormsModule, 
+    NgbModule,
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: momentAdapterFactory }),
     NgbModule,
     NgxSpinnerModule,

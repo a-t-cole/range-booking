@@ -4,13 +4,14 @@ import * as moment from 'moment';
 import { DataService } from './services/data.service';
 import { NgxSpinnerService } from "ngx-spinner";
 import { Size } from 'ngx-spinner/lib/ngx-spinner.enum';
-import { IUser, ITarget, IReservation } from './models/api.models';
+import { IUser, ITarget, IReservation, MomentReservation } from './models/api.models';
 import { RangeEvent } from './models/calendar.models';
 import { MatDialog } from '@angular/material/dialog';
 import { AddBookingComponent } from './components/add-booking/add-booking.component';
 import { BookingRequest, BookingResult } from './components/add-booking/add-booking.models';
 import { ToastrService } from 'ngx-toastr';
 import { ErrorHandlerService } from './services/error-handler.service';
+import { DataCache } from './models/generic.models';
 
 @Component({
   selector: 'app-root',
@@ -21,12 +22,8 @@ export class AppComponent implements OnInit {
   //https://angular-calendar.com/#/async-events <--event loading
   public view: CalendarView = CalendarView.Week;
   public viewDate: Date = new Date(); 
-  public events: CalendarEvent[] = []; 
-  public Data = {
-    Users: [], 
-    Targets: []
-
-  }
+  public events: RangeEvent[] = []; 
+  public Data:DataCache = new DataCache()
   private modalOpen: boolean = false; 
   constructor(private dataSvc: DataService, private spinner: NgxSpinnerService, private dialog: MatDialog, private errroHandler: ErrorHandlerService){
 
@@ -41,8 +38,8 @@ export class AppComponent implements OnInit {
     this.spinner.hide('Main'); 
   }
 
-  async getBookings() : Promise<IReservation[]>{
-    let reservations: IReservation[] = []; 
+  async getBookings() : Promise<MomentReservation[]>{
+    let reservations: MomentReservation[] = []; 
     let date = moment().day(0);
     let next = moment().day(0+7).subtract(1, "second");
     let response = await this.dataSvc.getReservations(date, next);
@@ -74,11 +71,14 @@ export class AppComponent implements OnInit {
     let date = selectedEvent?.date ?? null;
     if(!date){
       date = moment(); 
+    }else{
+      date = moment(selectedEvent.date);
     }
     console.log('add new booking'+ date);
     this.showBusy(); 
-    let valid = await this.isValidBooking(date); 
-    if(!valid){
+
+    let valid = await this.getAvailableTargetsForBooking(date); 
+    if(!valid.length){
       this.spinner.hide('Main');
       this.errroHandler.throwError('Bookings cannot be accepted for this time slot');
       return;
@@ -87,8 +87,9 @@ export class AppComponent implements OnInit {
     const dialogRef = this.dialog.open(AddBookingComponent, {
       width: "calc(100%-20px)", 
       height: "95%", 
+      minWidth: '80%',
       panelClass: "custom-dialog-panel", 
-      data: new BookingRequest(this.Data.Users, this.Data.Targets, date)
+      data: new BookingRequest(this.Data.Users, valid, date, this.getMaxBookingLength(date))
     });
     dialogRef.afterClosed().subscribe((x: BookingResult) => {
       this.modalOpen = false; 
@@ -96,25 +97,30 @@ export class AppComponent implements OnInit {
         if(x.userAdded){
           this.Data.Users.push(x.userAdded); 
         }
+        
       }
     });
     this.spinner.hide('Main'); 
   }
-  async isValidBooking(date: Date):Promise<boolean>{
+  async getAvailableTargetsForBooking(date: Date):Promise<ITarget[]>{
     // return new Promise(resolve => {
     //   setTimeout(() => {
     //     resolve(false); 
     //   }, 2000);
     // }); 
-    let relevantEvents = this.events?.map(x => x.start <date && x.end > date) ?? [];
-    if(relevantEvents && relevantEvents.length && this.Data.Targets.length <= relevantEvents.length){
-      return false; 
+    let relevantEvents = this.events?.filter(x => x.start <date && x.end > date) ?? [];
+    if(relevantEvents && relevantEvents.length){
+      let targets = relevantEvents.map(x => x.target)
+      return this.Data.Targets.filter(x => !targets.includes(x.name)); 
     }else{
-      return true; 
+      return this.Data.Targets; 
     }
   }
-  convertReservationToCalendarEvent(reservations: IReservation[]) : CalendarEvent[]{
-    let result: CalendarEvent[]; 
+  getMaxBookingLength(date: Date): number{
+    return 60; 
+  }
+  convertReservationToCalendarEvent(reservations: MomentReservation[]) : CalendarEvent[]{
+    let result: CalendarEvent[] = []; 
     if(!reservations){
       return result; 
     }

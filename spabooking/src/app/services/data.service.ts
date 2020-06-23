@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IUser, ITarget, IReservation } from '../models/api.models';
+import { IUser, ITarget, IReservation, MomentReservation } from '../models/api.models';
+import { Moment } from 'moment';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -31,9 +32,17 @@ export class DataService {
     if(!startDate || !endDate){
       throw 'No start or end date detected';
     }
-    return this.http.post<IReservation[]>(this.baseurl+'/getreservations', {
+    return this.http.post<MomentReservation[]>(this.baseurl+'/getreservations', {
       startDate: startDate, 
       endDate: endDate
     }).toPromise()
+  }
+  book(startDate: Moment, endDate: Moment, userId: number, tartgetId: number ){
+    return this.http.post(this.baseurl+'/addreservation',{
+      startDate: startDate, 
+      endDate: endDate, 
+      userId: userId, 
+      targetId: tartgetId
+    } ).toPromise(); 
   }
 }

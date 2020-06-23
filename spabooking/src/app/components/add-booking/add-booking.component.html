@@ -1,1 +1,35 @@
-{{data | json}}
+<div>
+    <select [(ngModel)]="selectedUser">
+        <option value="-1" [selected]="'-1' == selectedUser">Not in list</option>
+        <ng-container *ngIf="data.Users && data.Users.length">
+            <option *ngFor="let user of data.Users" [value]="user.id" [selected]="user.id == selectedUser">{{user.name}}</option>
+        </ng-container>
+    </select>
+</div>
+<div *ngIf="selectedUser == '-1'">
+    <input type="text" placeholder="Please enter your name"/>
+</div>
+<div>
+    <select [(ngModel)]="selectedTarget">
+        <ng-container *ngIf="data.Targets && data.Targets.length">
+            <option *ngFor="let target of data.Targets" [value]="target.id" [selected]="target.id == selectedTarget">{{target.name}}</option>
+        </ng-container>
+    </select>
+</div>
+<div>
+    Start Time
+    <ngb-timepicker [(ngModel)]="startTime"></ngb-timepicker>
+</div>
+<div class="form-group" [formGroup]="ctrl">
+    <ngb-timepicker [formControl]="ctrl"  [(ngModel)]="endTime" required></ngb-timepicker>
+    <div *ngIf="ctrl.valid" class="small form-text text-success">Great choice</div>
+    <div *ngIf="ctrl.errors" class="small form-text text-danger">
+      <div *ngIf="ctrl.errors['maxLengthError']">Max session time is {{(data.MaxBookingMinutes / 60)}} hours.</div>
+      <div *ngIf="ctrl.errors['beforeStartTimeError']">End time cannot be before start time.</div>
+
+      
+    </div>
+</div>
+<div>
+    <button type="button" class="btn btn-primary" (click)="book()">Primary</button>
+</div>
