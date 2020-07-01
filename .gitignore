@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 api/data/*
 api/www/*
+spabooking/.npmrc

@@ -1,7 +1,7 @@
-FROM node:12
+FROM mhart/alpine-node:12.18.1
 WORKDIR /usr/src/app
 COPY ./api/package*.json ./
-RUN npm i
+RUN npm i --only=production
 COPY ./api ./
-EXPOSE 3000
+EXPOSE 80
 CMD ["node", "index.js"]
