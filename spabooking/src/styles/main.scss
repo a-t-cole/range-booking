@@ -32,11 +32,3 @@ $spabooking-theme: mat-light-theme($spabooking-primary, $spabooking-accent, $spa
 @import './helpers';
 @import'./base'; 
 @import './buttons';
-//Font Awesome
-$fa-font-path: "~node_modules/@fortawesome/fontawesome-pro/webfonts";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/fontawesome";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/light";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/regular";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/solid";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/duotone";
-@import "~node_modules/@fortawesome/fontawesome-pro/scss/brands";

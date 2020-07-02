@@ -18,7 +18,7 @@ export class DataService {
   private readonly baseurl: string = '';
   constructor(private http: HttpClient) {
     if(!environment.production){
-      this.baseurl = "http://localhost:3000";
+      this.baseurl = "http://localhost";
     }
 
    }
